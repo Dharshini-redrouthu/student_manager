@@ -13,7 +13,6 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (kIsWeb || Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-    // Web/Desktop Firebase initialization
     await Firebase.initializeApp(
       options: const FirebaseOptions(
         apiKey: "AIzaSyB3W_ENcxQSxyssx4_ekib8JV6asD50ges",
@@ -26,7 +25,6 @@ Future<void> main() async {
     );
     if (kDebugMode) print("💻 Firebase initialized for Web/Desktop");
   } else {
-    // Mobile Firebase initialization
     await Firebase.initializeApp();
     if (kDebugMode) print("📱 Firebase initialized for Mobile");
   }
@@ -56,13 +54,13 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// Automatically shows HomeScreen if logged in, LoginScreen if logged out
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<User?>(context);
-    // If user is logged in, show HomeScreen; else LoginScreen
     return user == null ? const LoginScreen() : const HomeScreen();
   }
 }

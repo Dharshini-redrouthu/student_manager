@@ -56,9 +56,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (confirm == true) {
       await _studentsRef.doc(studentId).delete();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Deleted "$name" successfully')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Deleted "$name" successfully')),
+        );
+      }
     }
   }
 
@@ -71,6 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
+              // Logout — Provider-based AuthWrapper will redirect automatically
               await AuthService().signOut();
             },
           ),
@@ -190,7 +193,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         .toList();
                   }
 
-                  // Sort safely by createdAt, old students first
+                  // Sort by createdAt (oldest first)
                   students.sort((a, b) {
                     if (a.createdAt == null && b.createdAt == null) return 0;
                     if (a.createdAt == null) return -1;

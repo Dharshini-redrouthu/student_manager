@@ -1,31 +1,30 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import '../services/signup_screen.dart';
-import '../services/forgot_password_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SignupScreenState extends State<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: "admin@svecw.edu.in");
-  final _passwordController = TextEditingController(text: "admin@123");
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
   bool _loading = false;
   String? _error;
-  bool _obscurePassword = true;
+  bool _obscurePassword = true; // ✅ Added toggle
 
-  void _login() async {
+  void _signup() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _loading = true;
         _error = null;
       });
 
-      String? res = await AuthService().signIn(
+      String? res = await AuthService().signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
@@ -34,19 +33,21 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() {
           _error = res;
         });
+      } else {
+        // Success: Navigate back to login
+        if (mounted) Navigator.pop(context);
       }
 
       setState(() {
         _loading = false;
       });
-      // AuthWrapper or navigation logic can go here if needed
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
+      appBar: AppBar(title: const Text('Sign Up')),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -57,10 +58,12 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 if (_error != null)
                   Text(_error!, style: const TextStyle(color: Colors.red)),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: _emailController,
                   decoration: const InputDecoration(
                     labelText: 'Email',
+                    prefixIcon: Icon(Icons.email),
                     border: OutlineInputBorder(),
                   ),
                   validator: (val) => val!.isEmpty ? 'Enter email' : null,
@@ -68,9 +71,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _passwordController,
-                  obscureText: _obscurePassword,
+                  obscureText: _obscurePassword, // ✅ toggle applied
                   decoration: InputDecoration(
                     labelText: 'Password',
+                    prefixIcon: const Icon(Icons.lock),
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
                       icon: Icon(_obscurePassword
@@ -83,7 +87,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                     ),
                   ),
-                  validator: (val) => val!.isEmpty ? 'Enter password' : null,
+                  validator: (val) => val!.length < 6
+                      ? 'Password must be at least 6 characters'
+                      : null,
                 ),
                 const SizedBox(height: 20),
                 _loading
@@ -91,36 +97,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     : SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _login,
-                          child: const Text('Login'),
+                          onPressed: _signup,
+                          child: const Text('Sign Up'),
                         ),
                       ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const ForgotPasswordScreen()),
-                        );
-                      },
-                      child: const Text('Forgot Password?'),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const SignupScreen()),
-                        );
-                      },
-                      child: const Text('New User? Sign Up'),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),
